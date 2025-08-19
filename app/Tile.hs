@@ -73,7 +73,6 @@ isTerminal (Number _ One) = True
 isTerminal (Number _ Nine) = True
 isTerminal _ = False
 
-
 areSameSuit :: Tiles -> Bool
 areSameSuit [] = True
 areSameSuit (Number s _) : xs = all (samesuit s)
@@ -85,16 +84,14 @@ areEqual :: Tiles -> Bool
 areEqual [] = True
 areEqual x : xs = all (== x) xs
 
-
 areConsecutive :: Tiles -> Bool
 areConsecutive [] = True
 areConsecutive xs = isSameSuit xs && or do
-  nums <- sequence $ unwrap xs
+  nums <- sequence $ unwrap <$> xs
   return $ and $ mapAdj consec (sort nums)
   where
-    unwrapNumber Number _ n = Just n
-    unwrapNumber _ = None
-    unwrap = fmap unwrapNumber 
+    unwrap Number _ n = Just n
+    unwrap _ = None
 
 consec :: Number -> Number -> Bool
 consec n1 n2   
@@ -102,6 +99,3 @@ consec n1 n2
   | n1 == Nine = (n1 == succ n2) 
   | n2 == Nine = (n2 == succ n1) 
   | _  = (n1 == succ n2) || (n2 == succ n1) 
-
-normFive :: Number -> Number
-normFive RFive = Five
