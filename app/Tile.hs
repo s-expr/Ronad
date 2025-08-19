@@ -1,5 +1,7 @@
 module Tile where
 
+type Tiles = [Tile]
+
 data Tile 
   = Number Suit Number
   | Wind Cardinal
@@ -18,7 +20,7 @@ data Number
   | Eight
   | Nine 
   | Ten
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Show)
 
 data Suit 
   = Manzu
@@ -52,7 +54,7 @@ instance Enum Number where
   fromEnum Nine = 9
 
   toEnum num 
-    | num > 9 || num < 1= error "Invalid conversion"
+    | num > 9 || num < 1 = error "Invalid conversion"
   toEnum 1 = One 
   toEnum 2 = Two  
   toEnum 3 = Three  
@@ -66,13 +68,40 @@ instance Enum Number where
 instance Ord Number where  
   compare n1 n2 = compare (fromEnum n1) (fromEnum n2)
 
-
-
-
 isTerminal :: Tile -> Bool 
-isTerminal Number _ One = True
-isTerminal Number _ Nine = True
+isTerminal (Number _ One) = True
+isTerminal (Number _ Nine) = True
 isTerminal _ = False
+
+
+areSameSuit :: Tiles -> Bool
+areSameSuit [] = True
+areSameSuit (Number s _) : xs = all (samesuit s)
+  where
+    samesuit s (Number s' _) = s == s'
+    samesuit _ = False
+
+areEqual :: Tiles -> Bool
+areEqual [] = True
+areEqual x : xs = all (== x) xs
+
+
+areConsecutive :: Tiles -> Bool
+areConsecutive [] = True
+areConsecutive xs = isSameSuit xs && or do
+  nums <- sequence $ unwrap xs
+  return $ and $ mapAdj consec (sort nums)
+  where
+    unwrapNumber Number _ n = Just n
+    unwrapNumber _ = None
+    unwrap = fmap unwrapNumber 
+
+consec :: Number -> Number -> Bool
+consec n1 n2   
+  | n1 == n2 = False
+  | n1 == Nine = (n1 == succ n2) 
+  | n2 == Nine = (n2 == succ n1) 
+  | _  = (n1 == succ n2) || (n2 == succ n1) 
 
 normFive :: Number -> Number
 normFive RFive = Five
