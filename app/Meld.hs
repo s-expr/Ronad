@@ -40,14 +40,10 @@ tryMakeKan = tryMake Kan
 makeMeld :: Set -> RevealState -> Maybe Meld
 makeMeld = Meld 
 
-isEqual :: Tiles -> Bool
-isEqual [] = True
-isEqual x : xs = all (== x) xs
-
 isValid :: SetType -> (Tiles -> Bool)
-isValid Chi = isConsecutive .&&. isLen 3 
-isValid Pon = isEqual .&&. isLen 3 
-isValid Kan = isEqual .&&. isLen 4 
+isValid Chi = areConsecutive .&&. isLen 3 
+isValid Pon = areEqual .&&. isLen 3 
+isValid Kan = areEqual .&&. isLen 4 
 
 getTiles :: Meld -> [Tile]
 getTiles (Meld (Set _ tiles)) = tiles
