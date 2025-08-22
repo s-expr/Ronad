@@ -58,12 +58,16 @@ isOpen :: Meld -> Bool
 isOpen (Meld _ Open) = True
 isOpen _ = False
 
-hasMeld :: (Hashtable h, Eq k) => SetType -> h s k v -> ST s Bool
-hasMeld set = isJust .  case set of 
+hasSet :: (Hashtable h, Eq k) => h s k v -> SetType -> ST s Bool
+hasSet set = isJust .  case set of 
   Chi -> undefined
   Pon -> find minCount 3
   Kan -> find minCount 4
     where
       minCount n (tile, count) = count >= n
 
-
+hasAnySets :: Tiles -> [SetType] -> Bool
+hasAnySets tiles sets = runST $ do
+  tilesHist <- hist tiles
+  let hasFoundAny = map (hasSet ht) sets 
+  return $ or hasFoundAny

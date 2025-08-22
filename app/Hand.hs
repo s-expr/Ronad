@@ -13,8 +13,9 @@ data Wait
 
 data Hand = Hand
   { closed :: Tiles
-  , melds :: [Tiles]
+  , melds :: [Meld]
   }
+
 
 plays :: Tile -> Hand -> Maybe [Meld] 
 plays = findMelds . closed
@@ -55,3 +56,5 @@ canWinWithTiles :: Tiles -> Int -> Bool
 canWinWithTiles [t1, t2] 0 = t1 == t2
 canWinWithTiles _ 0 = False
 canWinWithTiles tiles meldsNeeded = _
+
+
