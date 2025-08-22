@@ -68,7 +68,7 @@ executable Ronad
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.18.3.0
+    build-depends:    hashtables ^>=1.4.2, base ^>=4.18.3.0
 
     -- Directories containing source files.
     hs-source-dirs:   app

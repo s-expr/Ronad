@@ -1,6 +1,7 @@
 module Tile where
 
 type Tiles = [Tile]
+type TileMap s = C.HashTable s Count Tile
 
 data Tile 
   = Number Suit Number
@@ -26,21 +27,21 @@ data Suit
   = Manzu
   | Pinzu
   | Sozu
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data Cardinal 
   = North
   | East
   | South
   | West
-  deriving (Eq, Show)
+  deriving (Eq, Show, Ord)
 
 data DColor 
   = White
   | Red
   | Green
-  deriving (Eq, Show)
- 
+  deriving (Eq, Show, Ord)
+
 instance Enum Number where
   fromEnum One = 1
   fromEnum Two = 2
@@ -64,7 +65,7 @@ instance Enum Number where
   toEnum 7 = Seven  
   toEnum 8 = Eight  
   toEnum 9 = Nine  
- 
+
 instance Ord Number where  
   compare n1 n2 = compare (fromEnum n1) (fromEnum n2)
 
@@ -72,6 +73,15 @@ isTerminal :: Tile -> Bool
 isTerminal (Number _ One) = True
 isTerminal (Number _ Nine) = True
 isTerminal _ = False
+
+isHonor :: Tile -> Bool
+isHonor (Wind _) = True
+isHonor (Dragon _) = True
+isHonor _ = False
+
+isWind :: Tile -> Wind -> Bool
+isWind (Wind c) w = c == w
+isWind _ _ = False
 
 areSameSuit :: Tiles -> Bool
 areSameSuit [] = True
@@ -86,7 +96,8 @@ areEqual x : xs = all (== x) xs
 
 areConsecutive :: Tiles -> Bool
 areConsecutive [] = True
-areConsecutive xs = isSameSuit xs && or do
+areConsecutive _ : [] = True
+areConsecutive xs = areSameSuit xs && or do
   nums <- sequence $ unwrap <$> xs
   return $ and $ mapAdj consec (sort nums)
   where
@@ -99,3 +110,15 @@ consec n1 n2
   | n1 == Nine = (n1 == succ n2) 
   | n2 == Nine = (n2 == succ n1) 
   | _  = (n1 == succ n2) || (n2 == succ n1) 
+
+generateFullSet :: Tiles
+generateFullSet = concatMap replicateTile allTiles
+  where
+    allTiles 
+      =  [Number suit num | suit <- [Manzu..Pinzu], num <- [One..Nine]] 
+      ++ [Wind c | c <- [North..West]] 
+      ++ [Dragon color | color <- [White..Green]] 
+    
+    replicateTile t@(Number suit Five) = [t, Number suit RFive]
+    replicateTile = pure 
+

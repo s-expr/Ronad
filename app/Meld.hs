@@ -3,6 +3,12 @@ module Meld where
 import Tile
 import Utils
 import Data.List (sort)
+import qualified Data.HashTable.ST.Cuckoo as C
+import Data.HashTable
+
+
+
+type TileHist s = C.HashTable s Tile Int
 
 data Set = Set {type :: SetType , tiles :: Tiles} 
   deriving (Eq, Show)
@@ -25,7 +31,7 @@ tryMake :: SetType -> Tiles -> MaybeSet
 tryMake type tiles =
   if isValid type tiles 
   then Just Set type tiles 
-  else None
+  else Nothing
 
 -- Smart Contructors 
 tryMakeChi :: Tiles -> Maybe Set
@@ -51,3 +57,13 @@ getTiles (Meld (Set _ tiles)) = tiles
 isOpen :: Meld -> Bool
 isOpen (Meld _ Open) = True
 isOpen _ = False
+
+hasMeld :: (Hashtable h, Eq k) => SetType -> h s k v -> ST s Bool
+hasMeld set = isJust .  case set of 
+  Chi -> undefined
+  Pon -> find minCount 3
+  Kan -> find minCount 4
+    where
+      minCount n (tile, count) = count >= n
+
+
